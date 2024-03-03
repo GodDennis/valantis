@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { DescTable } from "./DescTable/ProductsListTable";
+import { DescTable } from "./DescTable/ProductsTable";
 import { HeadCellProps } from "./THeader";
 
 const meta = {

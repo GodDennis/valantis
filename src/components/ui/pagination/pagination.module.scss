@@ -38,6 +38,9 @@ li.active {
 }
 
 .pagination {
+    margin: 0 auto;
+    max-width: 1006px;
+    width: 100%;
     display: flex;
     align-items: center;
 }

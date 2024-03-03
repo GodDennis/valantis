@@ -8,11 +8,11 @@ import { Link } from "react-router-dom";
 type Props = {
     totalCount?: number;
     currentPage: number;
+    pageSize: number;
 };
 
 export const Pagination = (props: Props) => {
-    const { totalCount = 100 } = props;
-    const pageSize = 5;
+    const { totalCount = 100, pageSize } = props;
     const [currentPage, setCurrentPage] = useState(+props.currentPage);
     const totalPages = Math.ceil(totalCount / +pageSize);
 

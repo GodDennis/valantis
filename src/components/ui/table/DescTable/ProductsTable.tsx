@@ -1,4 +1,4 @@
-import s from "./ProductsList.module.scss";
+import s from "./ProductsTable.module.scss";
 
 import { Table } from "..";
 
@@ -6,7 +6,8 @@ import { THeader } from "../THeader";
 import { memo } from "react";
 
 type HeadCellProps = {
-    [key: string]: string;
+    title: string;
+    key: string;
 };
 type productsRows = {
     brand: string;
@@ -15,12 +16,18 @@ type productsRows = {
     product: string;
 };
 
-type goodListTableProps = {
+type ProductsTable = {
     products: productsRows[];
-    head: HeadCellProps[];
 };
 
-export const ProductsListTable = memo(({ products, head }: goodListTableProps) => {
+const head: HeadCellProps[] = [
+    { title: "Id", key: "id" },
+    { title: "Title", key: "title" },
+    { title: "Price", key: "price" },
+    { title: "Brand", key: "brand" },
+];
+
+export const ProductsTable = memo(({ products }: ProductsTable) => {
     return (
         <Table.Root className={s.root}>
             <THeader head={head} />

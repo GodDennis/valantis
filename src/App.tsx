@@ -1,45 +1,91 @@
-import { useEffect } from "react";
-import { ProductsListTable } from "./components/ui/table/DescTable/ProductsListTable";
-import { useGetIdsMutation, useGetItemsMutation } from "./services/productsApi";
+import {
+    useGetIdsQuery,
+    useGetItemsQuery,
+    useGetPaginationIdsQuery,
+    useLazyGetFilteredQuery,
+} from "./services/productsApi";
 import Loader from "./components/ui/Loader/Loader";
-import { deleteDuplicate } from "./utils/deleteDublicates";
+import { getUniqueId, getUniqueListBy } from "./utils/UniqueList";
 import { Pagination } from "./components/ui/pagination";
 import { useParams } from "react-router-dom";
+import { Filter } from "./types/types";
+import { ProductsTable } from "./components/ui/table/DescTable/ProductsTable";
+import s from "./app.module.scss";
+import { FormProvider, useForm } from "react-hook-form";
+import { FilterForm } from "./components/layout/Filter";
+import { splitArrayIntoChunks } from "./utils/splitArrayIntoChunks";
 
 function App() {
-    const { pageCount } = useParams();
-    const [getIds, { isLoading: getIdsLoading }] = useGetIdsMutation();
-    const [getItems, { data: product, isLoading: getItemsLoading }] = useGetItemsMutation();
+    console.log("app");
+    const { pageCount } = useParams<{ pageCount: string }>();
 
-    const head = [
-        { title: "Id", key: "id" },
-        { title: "Title", key: "title" },
-        { title: "Price", key: "price" },
-        { title: "Brand", key: "brand" },
-    ];
+    const page = pageCount ? +pageCount : 1;
+    const limit = 50;
+    const { data: PaginationCount } = useGetPaginationIdsQuery();
 
-    useEffect(() => {
-        if (pageCount) {
-            getIds(+pageCount)
-                .unwrap()
-                .then(res => res.result)
-                .then(res => getItems(res))
-                .catch(e => {
-                    console.error(e);
-                });
-        }
-    }, [getIds, getItems, pageCount]);
+    const {
+        isLoading: getIdsLoading,
+        isFetching: getIdsFetching,
+        data: ids,
+    } = useGetIdsQuery({ offset: page - 1, limit });
 
-    if (!pageCount || getIdsLoading || getItemsLoading) return <Loader />;
+    const [getFilteredIds, { data: filteredIDS }] = useLazyGetFilteredQuery();
+
+    const paginationIdsWithoutDuplicates = getUniqueId(PaginationCount?.result);
+    const productsIdsWithoutDuplicates = getUniqueId(ids?.result);
+    const FilteredIdsWithoutDuplicates = getUniqueId(filteredIDS?.result);
+
+    const {
+        data: products,
+        isLoading: getItemsLoading,
+        isFetching: getItemsFetching,
+    } = useGetItemsQuery((FilteredIdsWithoutDuplicates || productsIdsWithoutDuplicates) ?? [], {
+        skip: !ids,
+    });
+
+    const productsWithoutDuplicates = getUniqueListBy(products?.result ?? [], "id");
+    const filteredLinkedList = filteredIDS?.result
+        ? splitArrayIntoChunks(productsWithoutDuplicates)
+        : [];
+
+    const methods = useForm();
+    // const { reset } = methods;
+
+    const onSubmit = (data: Filter) => {
+        const temp: { [key: string]: string } = {};
+        (Object.entries(data) as [keyof Filter, string][]).forEach(([key, value]) => {
+            if (data[key]) {
+                temp[key] = value;
+            }
+        });
+        getFilteredIds(temp);
+    };
+
+    if (getIdsLoading || getItemsLoading) return <Loader />;
+
     return (
-        <div style={{ width: "1280px", margin: "0 auto" }}>
-            {product && (
-                <ProductsListTable
-                    head={head}
-                    products={deleteDuplicate(product?.result)}
+        <div className={s.container}>
+            <FormProvider {...methods}>
+                <FilterForm onSubmit={onSubmit} />
+            </FormProvider>
+            <div className={s.content}>
+                {getItemsFetching || getIdsFetching ? (
+                    <Loader />
+                ) : (
+                    <ProductsTable
+                        products={filteredLinkedList[page - 1] || productsWithoutDuplicates}
+                    />
+                )}
+
+                <Pagination
+                    pageSize={limit}
+                    totalCount={
+                        FilteredIdsWithoutDuplicates?.length ||
+                        paginationIdsWithoutDuplicates?.length
+                    }
+                    currentPage={page}
                 />
-            )}
-            <Pagination currentPage={+pageCount} />
+            </div>
         </div>
     );
 }

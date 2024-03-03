@@ -1,7 +1,7 @@
-export type ResponseItems = {
+export type Items = {
     result: Item[];
 };
-export type ResponseIds = {
+export type Ids = {
     result: string[];
 };
 
@@ -10,4 +10,10 @@ export type Item = {
     id: string;
     price: number;
     product: string;
+};
+
+export type Filter = {
+    brand?: string;
+    price?: number;
+    product?: string;
 };
