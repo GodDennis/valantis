@@ -1,4 +1,5 @@
 import {
+    useGetFieldsQuery,
     useGetIdsQuery,
     useGetItemsQuery,
     useGetPaginationIdsQuery,
@@ -16,24 +17,23 @@ import { FilterForm } from "./components/layout/Filter";
 import { splitArrayIntoChunks } from "./utils/splitArrayIntoChunks";
 
 function App() {
-    console.log("app");
     const { pageCount } = useParams<{ pageCount: string }>();
 
     const page = pageCount ? +pageCount : 1;
     const limit = 50;
     const { data: PaginationCount } = useGetPaginationIdsQuery();
-
+    const { isLoading: getFieldsLoading } = useGetFieldsQuery();
     const {
         isLoading: getIdsLoading,
         isFetching: getIdsFetching,
         data: ids,
     } = useGetIdsQuery({ offset: page - 1, limit });
 
-    const [getFilteredIds, { data: filteredIDS }] = useLazyGetFilteredQuery();
+    const [getFilteredIds, { data: filteredIds }] = useLazyGetFilteredQuery();
 
     const paginationIdsWithoutDuplicates = getUniqueId(PaginationCount?.result);
     const productsIdsWithoutDuplicates = getUniqueId(ids?.result);
-    const FilteredIdsWithoutDuplicates = getUniqueId(filteredIDS?.result);
+    const FilteredIdsWithoutDuplicates = getUniqueId(filteredIds?.result);
 
     const {
         data: products,
@@ -44,24 +44,28 @@ function App() {
     });
 
     const productsWithoutDuplicates = getUniqueListBy(products?.result ?? [], "id");
-    const filteredLinkedList = filteredIDS?.result
+    const filteredLinkedList = filteredIds?.result
         ? splitArrayIntoChunks(productsWithoutDuplicates)
         : [];
 
     const methods = useForm();
-    // const { reset } = methods;
 
     const onSubmit = (data: Filter) => {
-        const temp: { [key: string]: string } = {};
+        console.log(data);
+        const temp: { [key: string]: string | number } = {};
         (Object.entries(data) as [keyof Filter, string][]).forEach(([key, value]) => {
             if (data[key]) {
-                temp[key] = value;
+                if (key === "price") {
+                    temp[key] = +value;
+                } else {
+                    temp[key] = value;
+                }
             }
         });
         getFilteredIds(temp);
     };
 
-    if (getIdsLoading || getItemsLoading) return <Loader />;
+    if (getIdsLoading || getItemsLoading || getFieldsLoading) return <Loader />;
 
     return (
         <div className={s.container}>

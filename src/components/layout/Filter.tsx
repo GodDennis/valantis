@@ -1,34 +1,67 @@
 import { Filter } from "@/types/types";
 import { useFormContext } from "react-hook-form";
-import { Input } from "../ui/input";
-import { Button } from "@mui/material";
+
+import { useGetFieldsQuery } from "@/services/productsApi";
+import { getUniqueListBy } from "@/utils/UniqueList";
+import s from "./filter.module.scss";
+import { ControlledInput } from "../ui/input/ControlledInput";
+import { ControlledSelect } from "../ui/select/ControlledSelect";
+import { Button } from "../ui/button";
 
 type FilterFormProps = {
     onSubmit: (data: Filter) => void;
 };
 
+type Options = {
+    label: string;
+    value: string;
+};
+
 export const FilterForm = ({ onSubmit }: FilterFormProps) => {
-    const { register, handleSubmit } = useFormContext();
+    const { handleSubmit, control } = useFormContext();
+    const { data } = useGetFieldsQuery();
+
+    const options: Options[] = [];
+    data?.result.map(el => {
+        if (typeof el !== "object") {
+            options.push({ label: el, value: el });
+        }
+    });
+    const uniqOptions = getUniqueListBy(options, "value");
+
     return (
         <aside>
             <h2>Add Filter</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Input
-                    {...register("product")}
+                <ControlledInput
+                    className={s.textField}
+                    control={control}
+                    name={"product"}
                     label='Title'
                     placeholder='Введите название товара'
                 />
-                <Input
-                    {...register("price")}
+                <ControlledInput
+                    control={control}
+                    name={"price"}
+                    className={s.textField}
                     label='Price'
                     placeholder='Укажите цену'
+                    type='number'
                 />
-                <Input
-                    {...register("brand")}
-                    label='Brand'
-                    placeholder='Введите бренд'
+                {uniqOptions && (
+                    <ControlledSelect
+                        control={control}
+                        name={"brand"}
+                        className={s.select}
+                        options={uniqOptions}
+                        placeholder='Brand'
+                    />
+                )}
+                <Button
+                    fullWidth
+                    type='submit'
+                    children='submit'
                 />
-                <Button type='submit' />
             </form>
         </aside>
     );

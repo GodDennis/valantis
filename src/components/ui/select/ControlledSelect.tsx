@@ -1,32 +1,32 @@
 import { FieldValues, UseControllerProps, useController } from "react-hook-form";
 
-import { Input, InputProps } from ".";
+import { SelectProps, Select } from ".";
 
-type ControlledInputProps<T extends FieldValues> = Omit<
+type ControlledSelectProps<T extends FieldValues> = Omit<
     UseControllerProps<T>,
-    "defaultValue" | "disabled" | "rules"
+    "disabled" | "rules"
 > &
-    Omit<InputProps, "name" | "onChange" | "value">;
+    Omit<SelectProps, "value">;
 
-export const ControlledInput = <T extends FieldValues>({
+export const ControlledSelect = <T extends FieldValues>({
     control,
     shouldUnregister,
     ...rest
-}: ControlledInputProps<T>) => {
+}: ControlledSelectProps<T>) => {
     const {
-        field: { onChange, value },
+        field: { onChange, value, ref },
     } = useController({
         control,
         disabled: rest.disabled,
         name: rest.name,
         shouldUnregister,
     });
-
     return (
-        <Input
+        <Select
             {...rest}
-            onChange={onChange}
+            onValueChange={onChange}
             value={value}
+            ref={ref}
         />
     );
 };

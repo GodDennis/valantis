@@ -1,0 +1,105 @@
+/* reset */
+button {
+    all: unset;
+}
+.selectRoot {
+    width: 284px;
+}
+.label {
+    margin: 0;
+    color: var(--color-dark-100);
+}
+
+.labelDisabled {
+    margin: 0;
+    color: var(--color-dark-300);
+}
+
+.SelectTrigger {
+    position: relative;
+
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 252px;
+    height: 36px;
+    padding: 0 15px;
+
+    font-size: 13px;
+    line-height: 1;
+    color: white;
+
+    background-color: var(--color-dark-500);
+    border: 1px solid var(--color-dark-300);
+
+    &:hover {
+        background-color: var(--color-dark-100);
+    }
+
+    &:active {
+        border: 1px solid var(--color-dark-100);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 2px var(--color-info-700);
+    }
+
+    &[data-placeholder] {
+        color: white;
+    }
+
+    &[data-disabled] {
+        color: var(--color-dark-300);
+        border: 1px solid var(--color-dark-300);
+    }
+
+    &[data-state="open"] {
+        border: 1px solid var(--color-dark-100);
+        border-radius: 2px 2px 0 0;
+    }
+
+    .SelectIcon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.SelectContent {
+    overflow: hidden;
+    height: 600px;
+    width: var(--radix-select-trigger-width);
+
+    background-color: var(--color-dark-500);
+    border: 1px solid var(--color-dark-100);
+    border-radius: 0 0 2px 2px;
+}
+
+.SelectItem {
+    user-select: none;
+
+    display: flex;
+    align-items: center;
+
+    height: 36px;
+    padding: 0 15px;
+
+    &[data-highlighted] {
+        border: none;
+        outline: none;
+    }
+
+    &:hover {
+        color: var(--color-accent-300);
+        background-color: var(--color-accent-900);
+    }
+
+    .SelectItemText {
+        position: absolute;
+    }
+}

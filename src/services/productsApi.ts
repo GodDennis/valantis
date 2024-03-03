@@ -54,7 +54,7 @@ export const productsApi = createApi({
                     method: "POST",
                     body: {
                         action: "get_fields",
-                        params: { field: "brand", offset: 0, limit: 10 },
+                        params: { field: "brand" },
                     },
                 }),
             }),
