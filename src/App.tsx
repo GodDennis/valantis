@@ -8,15 +8,25 @@ import {
 import Loader from "./components/ui/Loader/Loader";
 import { getUniqueId, getUniqueListBy } from "./utils/UniqueList";
 import { Pagination } from "./components/ui/pagination";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Filter } from "./types/types";
 import { ProductsTable } from "./components/ui/table/DescTable/ProductsTable";
 import s from "./app.module.scss";
 import { FormProvider, useForm } from "react-hook-form";
 import { FilterForm } from "./components/layout/Filter";
 import { splitArrayIntoChunks } from "./utils/splitArrayIntoChunks";
+import { useState } from "react";
 
 function App() {
+    const methods = useForm({ defaultValues: { product: "", price: "", brand: "" } });
+
+    const [toogle, setToogle] = useState<boolean>(false);
+    const navigate = useNavigate();
+
+    const onToogle = (value: boolean) => {
+        setToogle(value);
+    };
+
     const { pageCount } = useParams<{ pageCount: string }>();
 
     const page = pageCount ? +pageCount : 1;
@@ -30,7 +40,6 @@ function App() {
     } = useGetIdsQuery({ offset: page - 1, limit });
 
     const [getFilteredIds, { data: filteredIds }] = useLazyGetFilteredQuery();
-
     const paginationIdsWithoutDuplicates = getUniqueId(PaginationCount?.result);
     const productsIdsWithoutDuplicates = getUniqueId(ids?.result);
     const FilteredIdsWithoutDuplicates = getUniqueId(filteredIds?.result);
@@ -39,30 +48,36 @@ function App() {
         data: products,
         isLoading: getItemsLoading,
         isFetching: getItemsFetching,
-    } = useGetItemsQuery((FilteredIdsWithoutDuplicates || productsIdsWithoutDuplicates) ?? [], {
-        skip: !ids,
-    });
+    } = useGetItemsQuery(
+        (toogle ? FilteredIdsWithoutDuplicates : productsIdsWithoutDuplicates) ?? [],
+        {
+            skip: !ids,
+        }
+    );
 
     const productsWithoutDuplicates = getUniqueListBy(products?.result ?? [], "id");
     const filteredLinkedList = filteredIds?.result
         ? splitArrayIntoChunks(productsWithoutDuplicates)
         : [];
 
-    const methods = useForm();
-
     const onSubmit = (data: Filter) => {
-        console.log(data);
         const temp: { [key: string]: string | number } = {};
         (Object.entries(data) as [keyof Filter, string][]).forEach(([key, value]) => {
             if (data[key]) {
                 if (key === "price") {
                     temp[key] = +value;
                 } else {
-                    temp[key] = value;
+                    temp[key] = value.trim();
                 }
             }
         });
-        getFilteredIds(temp);
+
+        getFilteredIds(temp)
+            .unwrap()
+            .then(() => {
+                navigate("/1");
+                setToogle(true);
+            });
     };
 
     if (getIdsLoading || getItemsLoading || getFieldsLoading) return <Loader />;
@@ -70,22 +85,26 @@ function App() {
     return (
         <div className={s.container}>
             <FormProvider {...methods}>
-                <FilterForm onSubmit={onSubmit} />
+                <FilterForm
+                    onSubmit={onSubmit}
+                    onToogle={onToogle}
+                />
             </FormProvider>
             <div className={s.content}>
                 {getItemsFetching || getIdsFetching ? (
                     <Loader />
                 ) : (
                     <ProductsTable
-                        products={filteredLinkedList[page - 1] || productsWithoutDuplicates}
+                        products={toogle ? filteredLinkedList[page - 1] : productsWithoutDuplicates}
                     />
                 )}
 
                 <Pagination
                     pageSize={limit}
                     totalCount={
-                        FilteredIdsWithoutDuplicates?.length ||
-                        paginationIdsWithoutDuplicates?.length
+                        toogle
+                            ? FilteredIdsWithoutDuplicates?.length
+                            : paginationIdsWithoutDuplicates?.length
                     }
                     currentPage={page}
                 />

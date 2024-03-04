@@ -21,7 +21,6 @@ export const ControlledInput = <T extends FieldValues>({
         name: rest.name,
         shouldUnregister,
     });
-
     return (
         <Input
             {...rest}

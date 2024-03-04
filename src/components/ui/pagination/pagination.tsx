@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 import s from "./pagination.module.scss";
 import { ArrowForward } from "../assets/icons/ArrowForward";
@@ -13,8 +13,12 @@ type Props = {
 
 export const Pagination = (props: Props) => {
     const { totalCount = 100, pageSize } = props;
-    const [currentPage, setCurrentPage] = useState(+props.currentPage);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const totalPages = Math.ceil(totalCount / +pageSize);
+
+    useLayoutEffect(() => {
+        setCurrentPage(+props.currentPage);
+    }, [props.currentPage]);
 
     const handlePageChange = (pageNumber: number) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) setCurrentPage(pageNumber);

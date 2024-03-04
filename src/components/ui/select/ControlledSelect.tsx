@@ -10,7 +10,7 @@ type ControlledSelectProps<T extends FieldValues> = Omit<
 
 export const ControlledSelect = <T extends FieldValues>({
     control,
-    shouldUnregister,
+    // shouldUnregister,
     ...rest
 }: ControlledSelectProps<T>) => {
     const {
@@ -19,7 +19,7 @@ export const ControlledSelect = <T extends FieldValues>({
         control,
         disabled: rest.disabled,
         name: rest.name,
-        shouldUnregister,
+        // shouldUnregister,
     });
     return (
         <Select

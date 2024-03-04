@@ -31,14 +31,12 @@ export const Select = memo(
             options,
             placeholder,
             name,
-            // value,
+            value,
             ...rest
         } = props;
         const [open, setOpen] = useState(false);
-        const [currentValue, setCurrentValue] = useState<string | undefined>(undefined);
         const handleValueChange = (value: string) => {
             onValueChange?.(value);
-            setCurrentValue(value);
         };
         const handleOpenChange = () => {
             onOpenChange?.();
@@ -54,18 +52,18 @@ export const Select = memo(
                 </Typography>
                 <SelectRadix.Root
                     name={name}
-                    disabled={disabled}
+                    // disabled={disabled}
                     onOpenChange={handleOpenChange}
                     onValueChange={handleValueChange}
-                    value={currentValue}
+                    value={value}
                     {...rest}>
-                    <SelectRadix.Trigger className={`${className} ${s.SelectTrigger}`}>
+                    <SelectRadix.Trigger
+                        disabled={disabled}
+                        className={`${className} ${s.SelectTrigger}`}>
                         <SelectRadix.Value
                             ref={ref}
                             placeholder={<Typography variant={"body1"}>{placeholder}</Typography>}
-                            asChild>
-                            <Typography variant={"body1"}>{currentValue}</Typography>
-                        </SelectRadix.Value>
+                        />
                         <SelectRadix.Icon className={s.SelectIcon}>
                             {open && (
                                 <ArrowUp fill={disabled ? "var(--color-dark-300)" : "white"} />
