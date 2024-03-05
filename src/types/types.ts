@@ -17,3 +17,7 @@ export type Filter = {
     price?: number;
     product?: string;
 };
+
+export type IconProps = {
+    fill?: string;
+};

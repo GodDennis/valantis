@@ -1,7 +1,7 @@
-import { Navigate, RouteObject, RouterProvider, createHashRouter } from "react-router-dom";
+import { Navigate, RouterProvider, createHashRouter } from "react-router-dom";
 import App from "./App";
 
-const router = createHashRouter<RouteObject[]>([
+const router = createHashRouter([
     {
         path: "/",
         element: <Navigate to={"/1"} />,
