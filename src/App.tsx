@@ -40,6 +40,7 @@ function App() {
     } = useGetIdsQuery({ offset: page - 1, limit });
 
     const [getFilteredIds, { data: filteredIds }] = useLazyGetFilteredQuery();
+
     const paginationIdsWithoutDuplicates = getUniqueId(PaginationCount?.result);
     const productsIdsWithoutDuplicates = getUniqueId(ids?.result);
     const FilteredIdsWithoutDuplicates = getUniqueId(filteredIds?.result);
@@ -95,7 +96,10 @@ function App() {
                     <Loader />
                 ) : (
                     <ProductsTable
-                        products={toogle ? filteredLinkedList[page - 1] : productsWithoutDuplicates}
+                        products={
+                            (toogle ? filteredLinkedList[page - 1] : productsWithoutDuplicates) ??
+                            []
+                        }
                     />
                 )}
 

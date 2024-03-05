@@ -1,21 +1,32 @@
 import type { Filter, Ids, Items } from "@/types/types";
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
+import { FetchArgs, createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import { md5 } from "js-md5";
 
 const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 const password = `Valantis_${timestamp}`;
 
-export const productsApi = createApi({
-    reducerPath: "baseApi",
-    baseQuery: retry(
-        fetchBaseQuery({
+const staggeredBaseQueryWithBailOut = retry(
+    async (args: string | FetchArgs, api, extraOptions) => {
+        const result = await fetchBaseQuery({
             baseUrl: "http://api.valantis.store:40000/",
             headers: {
                 "X-Auth": md5(password),
             },
-        }),
-        { maxRetries: 5 }
-    ),
+        })(args, api, extraOptions);
+        if (result.error) {
+            console.warn("status code:" + result.meta?.response?.status);
+        }
+
+        return result;
+    },
+    {
+        maxRetries: 5,
+    }
+);
+
+export const productsApi = createApi({
+    reducerPath: "baseApi",
+    baseQuery: staggeredBaseQueryWithBailOut,
     endpoints: builder => {
         return {
             getIds: builder.query<Ids, { offset: number; limit: number }>({

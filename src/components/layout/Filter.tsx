@@ -25,7 +25,7 @@ export const FilterForm = ({ onSubmit, onToogle }: FilterFormProps) => {
     const { handleSubmit, control, formState, reset } = useFormContext();
     const dirtyFilds = Object.keys(formState.dirtyFields);
     const { data } = useGetFieldsQuery();
-    const disabled = useRef(true);
+    const disabledReset = useRef(true);
 
     const options: Options[] = [];
     data?.result.map(el => {
@@ -76,8 +76,9 @@ export const FilterForm = ({ onSubmit, onToogle }: FilterFormProps) => {
                         fullWidth
                         type='submit'
                         children='Подтвердить'
+                        disabled={!dirtyFilds?.length}
                         onClick={() => {
-                            disabled.current = false;
+                            disabledReset.current = false;
                         }}
                     />
                     <Button
@@ -85,9 +86,9 @@ export const FilterForm = ({ onSubmit, onToogle }: FilterFormProps) => {
                         type='reset'
                         variant='secondary'
                         children='Сбросить'
-                        disabled={disabled.current}
+                        disabled={disabledReset.current}
                         onClick={() => {
-                            disabled.current = true;
+                            disabledReset.current = true;
                             reset();
                             onToogle(false);
                             navigate("/1");
