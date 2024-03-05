@@ -8,7 +8,7 @@ const password = `Valantis_${timestamp}`;
 const staggeredBaseQueryWithBailOut = retry(
     async (args: string | FetchArgs, api, extraOptions) => {
         const result = await fetchBaseQuery({
-            baseUrl: "http://api.valantis.store:40000/",
+            baseUrl: "https://api.valantis.store:41000/",
             headers: {
                 "X-Auth": md5(password),
             },
